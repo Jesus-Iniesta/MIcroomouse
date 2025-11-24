@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Micromouse Flood Fill – Hadita</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="app-container">
+    <header class="app-header">
+      <h1>Micromouse Flood Fill</h1>
+      <p class="subtitle">Controlado desde PC · Visualización en tiempo real</p>
+    </header>
+
+    <main class="app-main">
+      <section class="left-panel">
+        <div class="card controls-card">
+          <h2>Control</h2>
+          <div class="controls">
+            <button id="btn-start">Start</button>
+            <button id="btn-step">Step</button>
+            <button id="btn-stop">Stop</button>
+            <button id="btn-reset" class="danger">Reset</button>
+          </div>
+          <div class="status-line">
+            <span>Último comando: <strong id="last-cmd">-</strong></span>
+            <span>Sensores: 
+              F=<span id="sensor-front">-</span>,
+              L=<span id="sensor-left">-</span>,
+              R=<span id="sensor-right">-</span>
+            </span>
+          </div>
+        </div>
+
+        <div class="card logs-card">
+          <h2>Logs</h2>
+          <pre id="logs"></pre>
+        </div>
+      </section>
+
+      <section class="right-panel">
+        <div class="card canvas-card">
+          <h2>Laberinto 6 x 12</h2>
+          <canvas id="maze-canvas" width="540" height="270"></canvas>
+          <p class="hint">Azul más oscuro = más cerca de la meta · Rojo = robot</p>
+        </div>
+      </section>
+    </main>
+
+  </div>
+
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
