@@ -10,8 +10,9 @@ import serial.serialutil
 #   CONFIGURACIÓN GENERAL
 # ==============================
 
-ROWS = 6
+ROWS = 7
 COLS = 12
+CELL_SIZE_CM = 16  # Cada celda mide 16x16 cm
 
 # 0=N, 1=E, 2=S, 3=W
 DIRS = [(-1, 0), (0, 1), (1, 0), (0, -1)]
@@ -44,13 +45,13 @@ class Cell:
 def init_maze():
     global maze, robot_row, robot_col, robot_dir, last_cmd, last_sensors, log_lines
     maze = [[Cell() for _ in range(COLS)] for _ in range(ROWS)]
-    robot_row = 5
+    robot_row = ROWS - 1  # Esquina inferior izquierda
     robot_col = 0
-    robot_dir = 0
+    robot_dir = 0  # Mirando al norte
     last_cmd = None
     last_sensors = {"front": None, "left": None, "right": None}
     log_lines = []
-    log("Maze reiniciado")
+    log(f"Maze reiniciado: {ROWS}x{COLS}, celdas de {CELL_SIZE_CM}x{CELL_SIZE_CM}cm")
 
 
 # ==============================
@@ -92,10 +93,17 @@ def init_serial():
 # ==============================
 
 def recompute_distances():
+    """
+    Algoritmo Flood Fill mejorado con Manhattan Distance como heurística inicial.
+    Esto ayuda a guiar mejor al robot hacia la meta.
+    """
+    # Inicializar distancias con Manhattan Distance como heurística
     for r in range(ROWS):
         for c in range(COLS):
-            maze[r][c].dist = 9999
+            min_manhattan = min(abs(r - gr) + abs(c - gc) for gr, gc in goal_cells)
+            maze[r][c].dist = min_manhattan
 
+    # Flood fill desde las celdas objetivo
     q = deque()
     for gr, gc in goal_cells:
         maze[gr][gc].dist = 0
@@ -122,6 +130,13 @@ def recompute_distances():
 # ==============================
 
 def choose_next_move():
+    """
+    Algoritmo mejorado de decisión de movimiento.
+    Prioriza:
+    1. Celdas con menor distancia
+    2. Movimientos hacia adelante (evita giros innecesarios)
+    3. Exploración de celdas desconocidas
+    """
     global robot_row, robot_col, robot_dir
 
     r, c, d = robot_row, robot_col, robot_dir
@@ -155,6 +170,7 @@ def choose_next_move():
 
     # si no hay salida posible
     if not best_dirs:
+        log("⚠️ Sin movimientos disponibles (robot atrapado)")
         return 'X'
 
     # 3 — preferencia de giro mínima (procesamiento humano)
@@ -193,6 +209,10 @@ def update_robot_pose_after_command(cmd):
 
 
 def update_walls_from_sensors(front, left, right):
+    """
+    Actualiza las paredes detectadas por los sensores.
+    También marca las paredes correspondientes en las celdas vecinas.
+    """
     global robot_row, robot_col, robot_dir
 
     r, c, d = robot_row, robot_col, robot_dir

@@ -111,7 +111,8 @@ float medirDistancia() {
 // -------- LEER SENSORES Y GENERAR PAREDES --------
 int paredFrente() {
   float d = medirDistancia();
-  if (d > 0 && d < 12) return 1;  // ajustable
+  // Detecta pared si está a menos de 10cm (centro del robot a 8cm de la pared)
+  if (d > 0 && d < 10) return 1;
   return 0;
 }
 
@@ -158,22 +159,22 @@ void loop() {
     // --------- MOVIMIENTOS ---------
     if (cmd == 'F') {
       avanzar();
-      delay(600);   // tiempo para avanzar una celda
+      delay(800);   // tiempo para avanzar 16cm (ajustar según velocidad del robot)
       detener();
     }
     else if (cmd == 'L') {
       girarIzquierda();
-      delay(350);
+      delay(400);   // tiempo para girar 90° a la izquierda
       detener();
     }
     else if (cmd == 'R') {
       girarDerecha();
-      delay(350);
+      delay(400);   // tiempo para girar 90° a la derecha
       detener();
     }
     else if (cmd == 'B') {
       retroceder();
-      delay(600);
+      delay(800);   // tiempo para retroceder 16cm
       detener();
     }
 
